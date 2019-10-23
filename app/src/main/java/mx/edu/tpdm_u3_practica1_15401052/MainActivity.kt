@@ -107,6 +107,7 @@ class MainActivity : AppCompatActivity() {
                             monto?.isEnabled = false
                             fechaVen?.isEnabled = false
                             pagado?.isEnabled = false
+                            actualizar?.isEnabled = false
                         }
 
                     actualizar?.setOnClickListener{
