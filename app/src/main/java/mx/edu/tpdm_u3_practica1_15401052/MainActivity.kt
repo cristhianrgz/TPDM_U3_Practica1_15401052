@@ -12,11 +12,12 @@ class MainActivity : AppCompatActivity() {
     var descripcion : EditText ?= null
     var monto : EditText ?= null
     var fechaVen : EditText ?= null
-    var pagado : EditText ?= null
+    //var pagado : EditText ?= null
     var listaView : ListView ?= null
     var insertar : Button ?= null
     var actualizar : Button ?= null
-
+    var radio1 : CheckBox ?= null
+    var varPagado = ""
     //declarando el objeto firestore
     var baseRemota = FirebaseFirestore.getInstance()
 
@@ -31,18 +32,29 @@ class MainActivity : AppCompatActivity() {
         descripcion = findViewById(R.id.editDescripcion)
         monto = findViewById(R.id.editMonto)
         fechaVen = findViewById(R.id.editfecha)
-        pagado = findViewById(R.id.editpagado)
         listaView = findViewById(R.id.listaRegitrados)
         insertar = findViewById(R.id.btnInsertar)
         actualizar = findViewById(R.id.btnActualizar)
+        radio1 = findViewById(R.id.radio1)
+
 
         insertar?.setOnClickListener {
+            if(radio1?.isChecked == true){
+                Toast.makeText(this,"Elegiste SI", Toast.LENGTH_SHORT).show()
+                varPagado = "true"
+            }
+            else{
+                varPagado = "false"
+            }
+
             var insertarDatos = hashMapOf(
                 "descripcion" to descripcion?.text.toString(),
                 "monto" to monto?.text.toString().toDouble(),
                 "fechaVencimiento" to fechaVen?.text.toString(),
-                "pagado" to pagado?.text.toString()
+                "pagado" to varPagado
+                //"pagado" to pagado?.text.toString()
             )
+
             baseRemota.collection("recibopagos").add(insertarDatos as Map<String, Any>)
                 .addOnSuccessListener {
                     Toast.makeText(this,"Se inserto correctamente", Toast.LENGTH_SHORT).show()
@@ -62,7 +74,7 @@ class MainActivity : AppCompatActivity() {
 
             for (document in querySnapshot!!){
                 var cadena = document.getString("descripcion")+" -- "+document.getDouble("monto")+" -- "+
-                        document.getString("fechaVencimiento")+" -- "+document.getString("pagado")+"\n"
+                        document.getString("fechaVencimiento")+"\n"
                 registrosRemotos.add(cadena)
                 keys.add(document.id)
             }
@@ -95,27 +107,35 @@ class MainActivity : AppCompatActivity() {
                             descripcion?.setText(it.getString("descripcion"))
                             monto?.setText(it.getDouble("monto").toString())
                             fechaVen?.setText(it.getString("fechaVencimiento"))
-                            pagado?.setText(it.getString("pagado"))
+                            var pagadoSN = it.getBoolean("pagado").toString()
+                            if(pagadoSN == "true"){
+                                radio1?.setChecked(true)
+                            }
+                            else radio1?.setChecked(false)
+                            //pagado?.setText(it.getString("pagado"))
                         }
                         .addOnFailureListener{
                             descripcion?.setText("NO SE ENCONTRO DATO")
                             monto?.setText("NO SE ENCONTRO DATO")
                             fechaVen?.setText("NO SE ENCONTRO DATO")
-                            pagado?.setText("NO SE ENCONTRO DATO")
+                            //pagado?.setText("NO SE ENCONTRO DATO")
 
                             descripcion?.isEnabled = false
                             monto?.isEnabled = false
                             fechaVen?.isEnabled = false
-                            pagado?.isEnabled = false
+                            //pagado?.isEnabled = false
                             actualizar?.isEnabled = false
                         }
 
                     actualizar?.setOnClickListener{
+
                         var datosActualizar = hashMapOf(
                             "descripcion" to descripcion?.text.toString(),
                             "monto" to monto?.text.toString().toDouble(),
                             "fechaVencimiento" to fechaVen?.text.toString(),
-                            "pagado" to pagado?.text.toString()
+                            "pagado" to radio1?.isChecked()
+
+                            //"pagado" to pagado?.text.toString()
                         )
                         baseRemota.collection("recibopagos").document(keys.get(i)).set(datosActualizar as Map<String, Any>)
                             .addOnSuccessListener {
@@ -135,6 +155,7 @@ class MainActivity : AppCompatActivity() {
         descripcion?.setText("")
         monto?.setText("")
         fechaVen?.setText("")
-        pagado?.setText("")
+        radio1?.setChecked(false)
+        //pagado?.setText("")
     }
 }

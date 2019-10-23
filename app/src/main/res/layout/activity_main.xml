@@ -44,13 +44,37 @@
         android:inputType="date"
         />
 
-    <EditText
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="PAGADO"
         android:textSize="20dp"
-        android:hint="Pagado"
-        android:id="@+id/editpagado"
+        android:textAlignment="center"
         />
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="10dp">
+
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SI"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:id="@+id/radio1"
+                android:checked="false"/>
+
+        </LinearLayout>
+    </RadioGroup>
 
     <LinearLayout
         android:layout_width="match_parent"
