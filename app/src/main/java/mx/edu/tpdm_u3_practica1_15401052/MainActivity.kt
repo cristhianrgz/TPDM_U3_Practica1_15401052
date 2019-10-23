@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputFilter
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
@@ -74,7 +75,58 @@ class MainActivity : AppCompatActivity() {
             listaView?.adapter = adapter
         }
         listaView?.setOnItemClickListener { adapterView, view, i, l ->
+            if(keys.size == 0){
+                return@setOnItemClickListener
+            }
+            AlertDialog.Builder(this).setTitle("ATENCION").setMessage("¿Que deseas hacer con "+registrosRemotos.get(i)+" ?")
+                .setPositiveButton("Eliminar"){dialog, which ->
+                    baseRemota.collection("recibopagos").document(keys.get(i)).delete()
+                        .addOnSuccessListener {
+                            Toast.makeText(this,"Se elimino correctamente", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener{
+                            Toast.makeText(this,"Error, No se pudo eliminar correctamente", Toast.LENGTH_SHORT).show()
+                        }
+                }
+                .setNegativeButton("Actualizar"){dialog, which ->
+                    baseRemota.collection("recibopagos").document(keys.get(i)).get()
 
+                        .addOnSuccessListener {
+                            descripcion?.setText(it.getString("descripcion"))
+                            monto?.setText(it.getDouble("monto").toString())
+                            fechaVen?.setText(it.getString("fechaVencimiento"))
+                            pagado?.setText(it.getString("pagado"))
+                        }
+                        .addOnFailureListener{
+                            descripcion?.setText("NO SE ENCONTRO DATO")
+                            monto?.setText("NO SE ENCONTRO DATO")
+                            fechaVen?.setText("NO SE ENCONTRO DATO")
+                            pagado?.setText("NO SE ENCONTRO DATO")
+
+                            descripcion?.isEnabled = false
+                            monto?.isEnabled = false
+                            fechaVen?.isEnabled = false
+                            pagado?.isEnabled = false
+                        }
+
+                    actualizar?.setOnClickListener{
+                        var datosActualizar = hashMapOf(
+                            "descripcion" to descripcion?.text.toString(),
+                            "monto" to monto?.text.toString().toDouble(),
+                            "fechaVencimiento" to fechaVen?.text.toString(),
+                            "pagado" to pagado?.text.toString()
+                        )
+                        baseRemota.collection("recibopagos").document(keys.get(i)).set(datosActualizar as Map<String, Any>)
+                            .addOnSuccessListener {
+                                limpiarCampos()
+                                Toast.makeText(this,"Se actualizo correctamente", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener{
+                                Toast.makeText(this,"Error, No se pudo actualizar correctamente", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                }
+                .setNeutralButton("Cancelar"){dialog, which -> }.show()
         }
     }
 
